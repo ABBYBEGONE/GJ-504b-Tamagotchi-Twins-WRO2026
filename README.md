@@ -1,0 +1,2 @@
+# GJ-504b-Tamagotchi-Twins
+WRO 2026 FUTURE ENGINEERS
