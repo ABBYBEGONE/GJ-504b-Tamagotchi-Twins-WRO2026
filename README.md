@@ -1,4 +1,4 @@
-# GJ-504b-Tamagotchi-Twins
+#Tamagotchi Triplets
 WRO 2026 FUTURE ENGINEERS
 This is the repository for GJ504b competing in the World Robot Olympiad, Future Engineer Category in 2026
 
