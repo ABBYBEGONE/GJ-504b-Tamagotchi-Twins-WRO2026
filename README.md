@@ -16,7 +16,7 @@ We are competing in the WRO for the first time
 We are friends in most of the same A Level classes who are passionate about STEM and are taking on the Future Engineer Category to challenge ourselves and improve our skills
 
 Team Name:
-"GJ-504b" refers to the name of a planet ( Gliese 504 b) located 57 light years away that is only 160 million years old and glows a distinct pink color from the heat of its formation. Abby's favourite colour is pink. "Tamogatchi" refers to popular handheld digital pet beloved by Tawana."Twins" was chosen because Michael was initially not part of our team. We are now triplets
+"Tamogatchi" refers to popular handheld digital pet beloved by Tawana."Triplets" was chosen because there are 3 of us
 
 
 THE TASK
