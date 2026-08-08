@@ -114,20 +114,25 @@ class BossModeVision: #lol ignore the name of the class - just see the vision
 
     def _get_mask(self, hsv, colour_key):
         """Uses the official baselines + dynamic slack for robustness."""
+
+        def _apply_slack(low, high):
+            low = low.copy()
+            high = high.copy()
+            low[1] = max(0, int(low[1]) - self.slack_s)
+            low[2] = max(0, int(low[2]) - self.slack_v)
+            high[1] = min(255, int(high[1]) + self.slack_s)
+            high[2] = min(255, int(high[2]) + self.slack_v)
+            return low, high
+
         if colour_key == 'red':
-            l1, h1 = OFFICIAL_COLOUR_BASELINES['red1']
-            l2, h2 = OFFICIAL_COLOUR_BASELINES['red2']
-            # Add slack
-            l1[1] = max(0, l1[1] - self.slack_s); l1[2] = max(0, l1[2] - self.slack_v)
-            h1[1] = min(255, h1[1] + self.slack_s); h1[2] = min(255, h1[2] + self.slack_v)
+            l1, h1 = _apply_slack(*OFFICIAL_COLOUR_BASELINES['red1'])
+            l2, h2 = _apply_slack(*OFFICIAL_COLOUR_BASELINES['red2'])
             m1 = cv2.inRange(hsv, l1, h1)
             m2 = cv2.inRange(hsv, l2, h2)
             return cv2.bitwise_or(m1, m2)
-        else:
-            low, high = OFFICIAL_COLOUR_BASELINES[colour_key]
-            low[1] = max(0, low[1] - self.slack_s); low[2] = max(0, low[2] - self.slack_v)
-            high[1] = min(255, high[1] + self.slack_s); high[2] = min(255, high[2] + self.slack_v)
-            return cv2.inRange(hsv, low, high)
+
+        low, high = _apply_slack(*OFFICIAL_COLOUR_BASELINES[colour_key])
+        return cv2.inRange(hsv, low, high)
 
     def _filter_contours(self, mask, min_area):
         cnts, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
