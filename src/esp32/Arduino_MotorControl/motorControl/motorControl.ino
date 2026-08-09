@@ -1,125 +1,87 @@
-#include <Stepper.h>
+#include <AccelStepper.h>
 
 int numOfSteps = 0;
-
 #define STEERING_STEP_PIN 32
 #define STEERING_DIRECTION_PIN 33
 
 #define DRIVING_STEP_PIN 19
 #define DRIVING_DIRECTION_PIN 18
 
+#define F_TRIG_PIN 2
+#define F_ECHO_PIN 0
+
+#define L_TRIG_PIN 13
+#define L_ECHO_PIN 14
+
+#define R_TRIG_PIN 16
+#define R_ECHO_PIN 4
+
+//Driving motor
+AccelStepper drivingStepper(AccelStepper::DRIVER, 19, 18);
+
+AccelStepper steeringStepper(AccelStepper::DRIVER, 32, 33);
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   Serial.println("Hello, ESP32!");
 
-  pinMode(STEERING_STEP_PIN, OUTPUT);
-  pinMode(STEERING_DIRECTION_PIN, OUTPUT);
+  pinMode(F_TRIG_PIN, OUTPUT);
+  pinMode(F_ECHO_PIN, INPUT);
 
-  pinMode(DRIVING_STEP_PIN, OUTPUT);
-  pinMode(DRIVING_DIRECTION_PIN, OUTPUT);
+  pinMode(L_TRIG_PIN, OUTPUT);
+  pinMode(L_ECHO_PIN, INPUT);
+
+  pinMode(R_TRIG_PIN, OUTPUT);
+  pinMode(R_ECHO_PIN, INPUT);
+
+  drivingStepper.setMaxSpeed(1000);
+  // Set the speed in steps per second:
+  drivingStepper.setSpeed(1000);
+  // Step the motor with a constant speed as set by setSpeed():
+  drivingStepper.setAcceleration(100);
+  drivingStepper.move(100);
+
+  steeringStepper.setMaxSpeed(1000);
+  // Set the speed in steps per second:
+  steeringStepper.setSpeed(1000);
+  // Step the motor with a constant speed as set by setSpeed():
+  steeringStepper.setAcceleration(100);
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  // this speeds up the simulation
+  //Leaving Parking Zone
+  if(getDistance(F_TRIG_PIN, F_ECHO_PIN) <= 5 && (getDistance(L_TRIG_PIN, L_ECHO_PIN) <= 5 || getDistance(R_TRIG_PIN, R_ECHO_PIN) <= 5)) //&&magenta
+  {
+    Serial.println("trying to leave parking");
+  }
 
-  changeDirection();
-  turnSteering();
+  //Driving Straight
+  if(getDistance(F_TRIG_PIN, F_ECHO_PIN) >= 30 && (getDistance(L_TRIG_PIN, L_ECHO_PIN) <= 30 || getDistance(R_TRIG_PIN, R_ECHO_PIN) <= 30)) 
+  {
+    Serial.println("Driving straight");
+  }
 
-  delay(3000);
+  //Turning Corner
+  if(getDistance(F_TRIG_PIN, F_ECHO_PIN) < 30 && (getDistance(L_TRIG_PIN, L_ECHO_PIN) >= 30 || getDistance(R_TRIG_PIN, R_ECHO_PIN) >= 30)) //&&colour = blue || orange
+  {
+    Serial.println("Turning corner");
+  }
 
-  changeDirection();
-  turnSteering();
-
-  delay(3000);
-  
-  resetSteering();
-  delay(3000);
-
+  //Passing t.lights
+  if(getDistance(F_TRIG_PIN, F_ECHO_PIN) < 10) //&&colour = "red" || "green"
+  {
+    Serial.println("Passing t.light");
+  }
 }
 
-void changeDirection()
+float getDistance(int trigPin, int echoPin)
 {
-  if (digitalRead(STEERING_DIRECTION_PIN) == LOW)
-  {
-    digitalWrite(STEERING_DIRECTION_PIN, HIGH);
-  }
-  else {
-    digitalWrite(STEERING_DIRECTION_PIN, LOW);
-  }
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  int duration = pulseIn(echoPin, HIGH);
+  return duration/58;
 }
-
-void turnSteering()
-{
-
-  if (numOfSteps == 0)
-  {
-    for (int i = 0; i < 90; i++)
-    {
-      digitalWrite(STEERING_STEP_PIN, HIGH);
-      digitalWrite(STEERING_STEP_PIN, LOW);
-
-      if (digitalRead(STEERING_DIRECTION_PIN) == HIGH)
-      {
-        numOfSteps++;
-      }
-      else
-      {
-        numOfSteps--;
-      }
-
-      delay(10);
-    }
-  }
-
-  else
-  {
-    for (int i = 0; i < 180; i++)
-    {
-      digitalWrite(STEERING_STEP_PIN, HIGH);
-      digitalWrite(STEERING_STEP_PIN, LOW);
-
-      if (digitalRead(STEERING_DIRECTION_PIN) == HIGH)
-      {
-        numOfSteps++;
-      }
-      else
-      {
-        numOfSteps--;
-      }
-
-      delay(10);
-    }
-  }
-
-
-
-  Serial.println(numOfSteps);
-
-}
-
-void resetSteering()
-{
-  changeDirection();
-  for (int i = 0; i < 90; i++)
-  {
-    digitalWrite(STEERING_STEP_PIN, HIGH);
-    digitalWrite(STEERING_STEP_PIN, LOW);
-
-    if (digitalRead(STEERING_DIRECTION_PIN) == HIGH)
-    {
-      numOfSteps++;
-    }
-    else
-    {
-      numOfSteps--;
-    }
-
-    delay(10);
-  }
-
-}
-
-
