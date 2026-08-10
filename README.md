@@ -1,9 +1,8 @@
-#Tamagotchi Triplets
-WRO 2026 FUTURE ENGINEERS
-This is the repository for GJ504b competing in the World Robot Olympiad, Future Engineer Category in 2026
+## Tamagotchi Triplets WRO 2026 FUTURE ENGINEERS
+> This is the repository for GJ504b competing in the World Robot Olympiad, Future Engineer Category > in 2026
 
 
-THE TEAM 
+### THE TEAM 
 
 | Name | Skills | Role |
 | --- | --- | --- |
@@ -11,36 +10,36 @@ THE TEAM
 | Tawana Chinoruma | add your skills | add your role in the team |
 | Michael Sambaza | add your skills | add your role in the team |
 
-General Information: 
-All 3 of us are 18 years old and Upper Sixth Students at Saint John's College in South Africa
-We are competing in the WRO for the first time
-We are friends in most of the same A Level classes who are passionate about STEM and are taking on the Future Engineer Category to challenge ourselves and improve our skills
 
-Team Name:
-"Tamogatchi" refers to popular handheld digital pet beloved by Tawana."Triplets" was chosen because there are 3 of us
+> All 3 of us are 18 years old and Upper Sixth Students at Saint John's College in South Africa
+> We are competing in the WRO for the first time
+> We are friends in most of the same A Level classes who are passionate about STEM and are taking  > on the Future Engineer Category to challenge ourselves and improve our skills
+
+> Team Name:
+> "Tamogatchi" refers to popular handheld digital pet beloved by Tawana."Triplets" was chosen >because there are 3 of us
 
 
-THE TASK
+### THE TASK
 
 Information on rules and problem descriptions from the official WRO can be found here: 
 https://wro-association.org/wp-content/uploads/WRO-2026-Future-Engineers-Self-Driving-Cars-General-Rules.pdf
 
 We will be judged on 3 categories:
-1. The Open Challenge: The vehicle must complete three (3) laps on the track with random placements
+**1. The Open Challenge:** The vehicle must complete three (3) laps on the track with random placements
 of the inside track walls.
-2. Obstacle Challenge: The vehicle must complete three (3) laps on the track with randomly placed
+**2. Obstacle Challenge:** The vehicle must complete three (3) laps on the track with randomly placed
 green and red traffic signs. The traffic signs indicate the side of the lane the vehicle must follow.
 The traffic sign to keep to the right side of the lane is a red pillar. The traffic sign to keep to the
 left side of the lane is a green pillar. The vehicle should not move any of the traffic signs. After
 the robot completed the three rounds, it had to find the parking lot and has to perform parallel
 parking.
-3. Documentation: In addition to designing and programming the vehicle,
+**3. Documentation:** In addition to designing and programming the vehicle,
 teams must provide documentation that presents their engineering progress, the final vehicle
 design, and final vehicle source code. This documentation must be uploaded to the public GitHub repository
   
 > **Hardware**: Raspberry Pi 3B+ · Camera Module 3 · Arduino Uno  
 > **Languages**: Python 3 · C++ (Arduino)
-## 📚 Table of Contents
+## Table of Contents
 
 1. [System Overview](#system-overview)
 2. [Mobility & Mechanical Design](#mobility--mechanical-design)
@@ -50,7 +49,7 @@ design, and final vehicle source code. This documentation must be uploaded to th
 6. [Testing & Iteration History](#-testing--iteration-history)
 7. [Build & Run Instructions](#-build--run-instructions)
 
-## 🧠 System Overview
+##  System Overview
 
 The **Tamagotchi-Triplets** autonomous vehicle is purpose‑built for the WRO 2026 Future Engineers Self‑Driving Car challenge. It uses a **dual‑processor architecture**:
 
@@ -162,30 +161,114 @@ graph TD
 
 ---
 
-## Vision pipeline modules
+### Vision pipeline modules
 Our vision code (computervision.py) is structured into four logical modules, each corresponding to a state:
 
-### Module A - Lane Keeping (detect_lane)
+#### Module A - Lane Keeping (detect_lane)
 - Dynamic ROI (Region Of Interest): calculates the vanishing point where lane lines converge, cropping out irrelevant background
 - Histogram peaks: find left and right lane boundaries
 - Normalised Offset: -1.0 (left line) → 0.0 (centre) → +1.0 (right line). This ensures the PID controller works identically on 600 mm and 1000 mm tracks.
 - Adaptive Slack: if lines are lost, S and V thresholds widen automatically, recovering from sudden lighting changes.
-### Module B – Corner Detection (detect_corner)
+#### Module B – Corner Detection (detect_corner)
 Looks for thick blue (left turn) or orange (right turn) lines in the upper‑middle ROI.
 
 Returns a boolean and the colour, triggering the "CORNER" state in the FSM.
 
-### Module C – Traffic Obstacles (detect_traffic_sign)
+#### Module C – Traffic Obstacles (detect_traffic_sign)
 Detects red or green pillars (50×50×100 mm).
 
 Filters by aspect ratio (~1.0) and area (>150 pixels²).
 
 Returns required_side – 'left' for green, 'right' for red – which the FSM uses to steer accordingly.
 
-### Module D – Parking (detect_parking)
+#### Module D – Parking (detect_parking)
 Looks for magenta bars (200×20 mm) with aspect ratio > 2.5.
 
 Returns centroids of the two largest bars, used to align the car for parallel parking.
+
+### Serial comunication 
+
+## Key Engineering Decisions & Trade-offs 
+
+### HSV vs Deep Learning
+
+|Decision| HSV Colour Masking|
+|----|----|
+|Why||
+|Trade-off|
+
+### Serial vs ROS 
+
+|Decision| Direct USB Serial (PiSerial)|
+|---|---|
+|Why||
+|Trade-off||
+
+### Static vs Dynamic ROI 
+|Decision| Dynamic Vanishing-point cropping|
+|---|---|
+|Why | |
+|Trade-off| |
+
+### Normalised vs Raw Offset 
+|Decision| Normalised Offset|
+|---|---|
+|Why | |
+|Trade-off| |
+
+## Testing & Iteration History
+
+
+-  Commit V1.0 – 
+
+-  Commit V2.0 – 
+
+Lesson: Need dynamic ROI and normalised offset.
+
+Commit V3.0 
+
+## Build & Run Instructions
+Prerequisites
+Raspberry Pi 3B+ with Raspberry Pi OS (Bullseye) .
+
+Python 3.7+ with pip.
+
+Arduino Uno with the companion sketch uploaded (see arduino/ folder).
+
+Install Dependencies
+bash
+sudo apt-get update
+sudo apt-get install -y python3-opencv python3-pip
+pip3 install opencv-python numpy picamera pyserial
+Clone the Repository
+bash
+git clone https://github.com/[YOUR_TEAM]/wro2026-fe
+cd wro2026-fe
+Find the Arduino Port
+bash
+ls /dev/ttyUSB* /dev/ttyACM*
+Update ARDUINO_PORT in robot_control.py if necessary (default: /dev/ttyACM0).
+
+Run the Vehicle
+bash
+python3 robot_control.py
+Press Ctrl+C at any time to gracefully stop the car and close the serial connection.
+
+
+## Media & Visuals
+Vehicle Photos
+[Add images of the front, back, top, and bottom of our robot here]
+
+https://link-to-front.jpg
+https://link-to-side.jpg
+https://link-to-top.jpg
+https://link-to-bottom.jpg
+
+### Demonstration Videos
+Open Challenge Run – [YouTube Link]
+
+Obstacle Challenge Run – [YouTube Link]
+
 
 
 
