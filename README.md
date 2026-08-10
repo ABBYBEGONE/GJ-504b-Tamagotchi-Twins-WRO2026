@@ -40,14 +40,9 @@ design, and final vehicle source code. This documentation must be uploaded to th
 > **Hardware**: Raspberry Pi 3B+ · Camera Module 3 · Arduino Uno  
 > **Languages**: Python 3 · C++ (Arduino)
 
- ## System Overview 
- ---
-
-<br/>
-
 ## 🧠 System Overview
 
-The **Tamagotchi-Twins** autonomous vehicle is purpose‑built for the WRO 2026 Future Engineers Self‑Driving Car challenge. It uses a **dual‑processor architecture**:
+The **Tamagotchi-Triplets** autonomous vehicle is purpose‑built for the WRO 2026 Future Engineers Self‑Driving Car challenge. It uses a **dual‑processor architecture**:
 
 | Processor | Role |
 |-----------|------|
