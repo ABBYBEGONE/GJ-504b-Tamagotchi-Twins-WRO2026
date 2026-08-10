@@ -1,6 +1,6 @@
 
 """
-WRO 2026 FUTURE ENGINEERS - Tamagotchi-Twins
+WRO 2026 FUTURE ENGINEERS - Tamagotchi-Triplets
 Hardware: 
 - Raspberry Pi 3B+ 
 - Camera Module 3 
@@ -50,6 +50,58 @@ MIN_PARKING_AREA = 80       # 200x20mm bars (long but thin)
 # upper half, we are definitely at a corner. (Based on 20mm thick lines).
 CORNER_PIXEL_THRESHOLD = 120
 
+#Configuration 
+import sys
+import signal
+import serial
+import glob
+"""
+Serial port configuration. 
+From my research, on linux/raspberry pi: usually '/dev/ttyACM0' or '/dev/ttyUSB0'
+You can find it by running: ls /dev/ttyUSB* /dev/ttyACM*
+"""
+ARDUINO_PORT = '/dev/ttyACM0'
+BAUD_RATE = 115200  # Must match the baud rate in our Arduino sketch
+
+# Control loop timing (seconds)
+CONTROL_LOOP_DT = 0.05  # 20 Hz control loop
+
+# Serial Communication Setup 
+
+def setup_serial(port, baudrate):
+    """ Initialise and return a serial connection to the Arduino."""
+    try:
+        ser = serial.Serial(port, baudrate, timeout=0.1)
+        time.sleep(2)  # Wait for Arduino to reset
+        print(f"[INFO] Serial connected to {port} at {baudrate} baud")
+        return ser
+    except serial.SerialException as e:
+        print(f"[ERROR] Could not open serial port {port}: {e}")
+        print("[INFO] Available ports:")
+        import glob
+        print(glob.glob('/dev/ttyUSB*') + glob.glob('/dev/ttyACM*'))
+        sys.exit(1)
+
+def send_command(ser, steering_value, speed_value=0.5):
+    """
+    Send a steering command to the Arduino.
+    Format: "steering,speed\n"
+    - steering: float between -1.0 (full left) and 1.0 (full right)
+    - speed: float between 0.0 (stop) and 1.0 (full speed)
+    """
+    # Clamp values to safe range
+    steering = max(-1.0, min(1.0, steering_value))
+    speed = max(0.0, min(1.0, speed_value))
+    
+    # Build command string
+    command = f"{steering:.3f},{speed:.3f}\n"
+    ser.write(command.encode())
+    
+    # Optionally read any feedback from Arduino (non-blocking)
+    if ser.in_waiting > 0:
+        feedback = ser.readline().decode().strip()
+        if feedback:
+            print(f"[Arduino] {feedback}")
 
 # 1. Output data structure
 
@@ -66,7 +118,7 @@ VisionResult = namedtuple('VisionResult', [
     'corner_detected',          # Boolean: True if Blue/Orange corner ahead
     'corner_colour',            # 'blue' or 'orange' (determines turn direction)
     
-    # Module C : Traffic Obstacles 
+    # Module C: Traffic Obstacles 
     'traffic_sign_colour',      # 'red' or 'green' or None
     'traffic_sign_x',           # X-coordinate (pixels) of the sign's centre
     'traffic_sign_area',        # Area (larger = closer)
@@ -77,8 +129,8 @@ VisionResult = namedtuple('VisionResult', [
     'magenta_detected'          # Bool: True if parking slot is visible
 ])
 
-
-class BossModeVision: #lol ignore the name of the class - just see the vision
+# Vision Processor Class
+class BossModeVision: 
     """
    Attempted to make this adapt to lighting changes - we'll see if it works when we test it out
     """
@@ -108,7 +160,6 @@ class BossModeVision: #lol ignore the name of the class - just see the vision
     def __enter__(self): return self
     def __exit__(self, *args): self.camera.close()
 
-    # Helpers 
     def _get_hsv(self, bgr):
         return cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
 
@@ -348,3 +399,94 @@ class BossModeVision: #lol ignore the name of the class - just see the vision
 
     def get_frame_and_process(self):
         return self.process_frame(self.capture_frame())
+        
+# 3. Serial Helpers 
+def etup_serial(port, baudrate):
+    try:
+        ser = serial.Serial(port, baudrate, timeout=0.1)
+        time.sleep(2)
+        print(f"[INFO] Serial connected to {port} at {baudrate} baud")
+        return ser
+    except serial.SerialException as e:
+        print(f"[ERROR] Could not open serial port {port}: {e}")
+        print("Available ports:", glob.glob('/dev/ttyUSB*') + glob.glob('/dev/ttyACM*'))
+        sys.exit(1)
+
+def send_command(ser, steering, speed):
+    steering = max(-1.0, min(1.0, steering))
+    speed = max(0.0, min(1.0, speed))
+    ser.write(f"{steering:.3f},{speed:.3f}\n".encode())
+    if ser.in_waiting > 0:
+        fb = ser.readline().decode().strip()
+        if fb:
+            print(f"[Arduino] {fb}")
+
+# 4. State Machine - based on the robot states in the 'Bot States' document
+class RobotState:
+    def __init__(self):
+        self.state = "STRAIGHT"
+        self.corner_count = 0
+        self.laps = 0
+
+    def update(self, result):
+        #Corner 
+        if result.corner_detected:
+            self.state = "CORNER"
+            turn = -0.8 if result.corner_colour == 'blue' else 0.8
+            return turn, 0.3
+
+        #Traffic obstacle 
+        if result.traffic_sign_colour is not None:
+            self.state = "OBSTACLE"
+            steer = -0.5 if result.traffic_sign_colour == 'green' else 0.5
+            return steer, 0.4
+
+        #Parking 
+        if result.magenta_detected and result.parking_markers:
+            self.state = "PARKING"
+            avg_x = (result.parking_markers[0][0] + result.parking_markers[1][0]) / 2
+            steer = (avg_x - 160) / 160.0
+            return max(-0.5, min(0.5, steer)), 0.2
+
+        # Straight (default) 
+        self.state = "STRAIGHT"
+        steer = -result.lane_offset_normalized * 0.7
+        steer = max(-0.6, min(0.6, steer))
+        return steer, 0.6
+
+
+# 5. Main Loop - captures frames, processes vision, updates state, sends serial commands at 20Hz
+
+def signal_handler(sig, frame):
+    print("\n[INFO] Shutting down...")
+    sys.exit(0)
+
+def main():
+    signal.signal(signal.SIGINT, signal_handler)
+    arduino = setup_serial(ARDUINO_PORT, BAUD_RATE)
+    vision = BossModeVision()
+    robot = RobotState()
+    print("[INFO] Control loop started. Press Ctrl+C to stop.")
+
+    try:
+        with vision:
+            while True:
+                result = vision.get_frame_and_process()
+                steering, speed = robot.update(result)
+                send_command(arduino, steering, speed)
+
+                # Optional debug print
+                print(f"State: {robot.state:10} | Steering: {steering:+6.2f} | "
+                      f"Offset: {result.lane_offset_normalized:+6.2f} | "
+                      f"Sign: {result.traffic_sign_colour or 'None':5}")
+                time.sleep(CONTROL_LOOP_DT)
+
+    except KeyboardInterrupt:
+        print("[INFO] Stopped by user")
+    finally:
+        send_command(arduino, 0.0, 0.0)  #Physical stop - sends 0 speed 
+        arduino.close() # closes the serial port
+        print("[INFO] Serial closed.")
+
+if __name__ == "__main__":
+    main()
