@@ -51,6 +51,10 @@ MIN_PARKING_AREA = 80       # 200x20mm bars (long but thin)
 CORNER_PIXEL_THRESHOLD = 120
 
 #Configuration 
+import sys
+import signal
+import serial
+import glob
 """
 Serial port configuration. 
 From my research, on linux/raspberry pi: usually '/dev/ttyACM0' or '/dev/ttyUSB0'
