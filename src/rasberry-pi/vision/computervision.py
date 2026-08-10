@@ -1,4 +1,5 @@
-
+#in order to use this code properly, copy, paste, and run "pip install pyserial" in the Command Prompt (windows) / Terminal (Mac)
+#This will install the neccesary library to use serial communication with Pyhton
 """
 WRO 2026 FUTURE ENGINEERS - Tamagotchi-Twins
 Hardware: 
@@ -12,6 +13,7 @@ Based on Official WRO 2026 Rulebook Specifications:
 - Traffic signs: Red (RGB 238,39,55), Green (RGB 68,214,44)
 - Parking markers: Magenta (RGB 255,0,255)
 """
+
 
 import cv2
 import numpy as np
