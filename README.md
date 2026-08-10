@@ -141,7 +141,7 @@ These settings prevent auto‑exposure flicker that would otherwise shift HSV th
 
 Below is the **state machine**. The full detailed diagram with all conditions and transitions is available in [need to link the "Bot state" document .
 
-```mermaid
+~~~mermaid
 graph TD
     A[START] --> B{Leaving Parking?}
     B -->|Magenta detected + Front USS < 5cm| C[Tightest Turn]
@@ -158,7 +158,8 @@ graph TD
     J -->|Yes| K[Parking]
     K --> L[STOP]
     J -->|No| D
-<br/>
+~~~
+
 ---
 
 ## Vision pipeline modules
