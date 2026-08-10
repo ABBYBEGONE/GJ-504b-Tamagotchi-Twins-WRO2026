@@ -166,9 +166,9 @@ Our vision code (computervision.py) is structured into four logical modules, eac
 
 ### Module A - Lane Keeping (detect_lane)
 - Dynamic ROI (Region Of Interest): calculates the vanishing point where lane lines converge, cropping out irrelevant background
-- Histogram peaks: finda left and right lane boundaries
+- Histogram peaks: find left and right lane boundaries
 - Normalised Offset: -1.0 (left line) → 0.0 (centre) → +1.0 (right line). This ensures the PID controller works identically on 600 mm and 1000 mm tracks.
--Adaptive Slack: if lines are lost, S and V thresholds widen automatically, recovering from sudden lighting changes.
+- Adaptive Slack: if lines are lost, S and V thresholds widen automatically, recovering from sudden lighting changes.
 ### Module B – Corner Detection (detect_corner)
 Looks for thick blue (left turn) or orange (right turn) lines in the upper‑middle ROI.
 
