@@ -42,10 +42,10 @@ design, and final vehicle source code. This documentation must be uploaded to th
 > **Languages**: Python 3 · C++ (Arduino)
 ## 📚 Table of Contents
 
-1. [System Overview](#-system-overview)
-2. [Mobility & Mechanical Design](#-mobility--mechanical-design)
-3. [Sensor & Vision Architecture](#-sensor--vision-architecture)
-4. [Software Architecture](#-software-architecture)
+1. [System Overview](#system-overview)
+2. [Mobility & Mechanical Design](#mobility--mechanical-design)
+3. [Sensor & Vision Architecture](#sensor--vision-architecture)
+4. [Software Architecture](#software-architecture)
 5. [Key Engineering Decisions](#-key-engineering-decisions--trade-offs)
 6. [Testing & Iteration History](#-testing--iteration-history)
 7. [Build & Run Instructions](#-build--run-instructions)
