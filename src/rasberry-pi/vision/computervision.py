@@ -1,4 +1,5 @@
-
+#in order to use this code properly, copy, paste, and run "pip install pyserial" in the Command Prompt (windows) / Terminal (Mac)
+#This will install the neccesary library to use serial communication with Pyhton
 """
 WRO 2026 FUTURE ENGINEERS - Tamagotchi-Triplets
 Hardware: 
