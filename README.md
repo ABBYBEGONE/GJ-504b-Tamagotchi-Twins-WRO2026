@@ -6,10 +6,10 @@ This is the repository for GJ504b competing in the World Robot Olympiad, Future 
 THE TEAM 
 
 | Name | Skills | Role |
-|-----------------|-----------------|-----------------|
-1. Abigail Maina | add your skills | add your role in the team | 
-2. Tawana Chinoruma | add your skills | add your role in the team |
-3. Michael Sambaza | add your skills | add your role in the team | 
+| --- | --- | --- |
+| Abigail Maina | add your skills | add your role in the team |
+| Tawana Chinoruma | add your skills | add your role in the team |
+| Michael Sambaza | add your skills | add your role in the team |
 
 General Information: 
 All 3 of us are 18 years old and Upper Sixth Students at Saint John's College in South Africa
