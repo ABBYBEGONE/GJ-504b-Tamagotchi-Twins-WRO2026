@@ -1,6 +1,6 @@
+#!/usr/bin/env python3
 #in order to use this code properly, copy, paste, and run "pip install pyserial" in the Command Prompt (windows) / Terminal (Mac)
 #This will install the neccesary library to use serial communication with Pyhton
-#!/usr/bin/env python3
 """
 WRO 2026 FUTURE ENGINEERS - Tamagotchi-Triplets
 Complete autonomous driving pipeline: Vision + State Machine + Serial (Pi ↔ Arduino)
