@@ -1,6 +1,7 @@
 #include <AccelStepper.h>
 
 float serialDir, serialSpd;
+int targetSpeed, steeringTarget;
 
 int maxDrivingSpeed = 2000;
 
@@ -61,29 +62,39 @@ void loop() {
 
   frontDistance = getDistance(F_TRIG_PIN, F_ECHO_PIN);
   leftDistance = getDistance(L_TRIG_PIN, L_ECHO_PIN);
-  rightDistance = getDistance(R_TRIG_PIN, R_ECHO_PIN)
+  rightDistance = getDistance(R_TRIG_PIN, R_ECHO_PIN);
 
-  if (Serial.available() > 0)
+  if (Serial.available())
   {
-    serialDir = Serial.parseFloat();
-    serialSpd =  Serial.parseFloat();
+    String cmd = Serial.readStringUntil('\n');
+    int comma = cmd.indexOf(',');
+    if (comma > 0) {
+      serialDir = cmd.substring(0, comma).toFloat();
+      serialSpd = cmd.substring(comma + 1).toFloat();
+    }
 
-    Serial.write(frontDistance + "," + leftDistance + "," + rightDistance);
-    //format of serial write 
+
+    Serial.print(frontDistance);
+    Serial.print(",");
+    Serial.print(leftDistance);
+    Serial.print(",");
+    Serial.println(rightDistance);
+    //format of serial write (f_dist,l_dist,r_dist)
   }
 
+  steeringTarget = (int)(round(25 * serialDir));
+  targetSpeed = (int)(round(maxDrivingSpeed * serialSpd));
+
   //continually adjust speed and wheel angle using values supplied from CV
-  drivingStepper.setSpeed(maxDrivingSpeed * serialSpd);
-  steeringStepper.moveTo(25 * serialDir);
+  drivingStepper.setSpeed(targetSpeed);
+  steeringStepper.moveTo(steeringTarget);
 
   drivingStepper.move(100); //keeps the wheels turning by continually pushing the target rotation 100 steps away
-
-  
 
   drivingStepper.run();
   steeringStepper.run();
 
- 
+
 }
 
 float getDistance(int trigPin, int echoPin)
@@ -96,10 +107,10 @@ float getDistance(int trigPin, int echoPin)
   return duration / 58;
 }
 
-void LeaveParking() 
+void LeaveParking()
 {
   Serial.println("trying to leave parking");
-  if(leftDistance <= 5)
+  if (leftDistance <= 5)
   {
     steeringStepper.moveTo(25);
     steeringStepper.runToPosition();
@@ -113,7 +124,7 @@ void LeaveParking()
     drivingStepper.moveTo(800);
     drivingStepper.runToPosition();
   }
-  else if(rightDistance <= 5)
+  else if (rightDistance <= 5)
   {
     steeringStepper.moveTo(-25);
     steeringStepper.runToPosition();
