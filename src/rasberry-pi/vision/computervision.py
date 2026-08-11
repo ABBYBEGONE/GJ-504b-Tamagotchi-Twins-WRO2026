@@ -543,7 +543,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-  
+    sys.exit(0)
     # Module C: Traffic sign / Obstacle detection
     def detect_traffic_sign(self, hsv):
         """
