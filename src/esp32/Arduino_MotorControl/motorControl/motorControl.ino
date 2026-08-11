@@ -1,4 +1,5 @@
 #include <AccelStepper.h>
+#include <HC_SR04.h>
 
 float serialDir, serialSpd;
 int targetSpeed, steeringTarget;
@@ -9,6 +10,8 @@ int cornersTurned = 0; //check if this is kept track of in py
 
 float frontDistance, leftDistance, rightDistance;
 
+int asyncTimeForUSS = 100000;
+
 #define STEERING_STEP_PIN 32
 #define STEERING_DIRECTION_PIN 33
 
@@ -16,13 +19,19 @@ float frontDistance, leftDistance, rightDistance;
 #define DRIVING_DIRECTION_PIN 18
 
 #define F_TRIG_PIN 2
-#define F_ECHO_PIN 0
+#define F_ECHO_PIN 15
 
 #define L_TRIG_PIN 13
 #define L_ECHO_PIN 14
 
 #define R_TRIG_PIN 16
 #define R_ECHO_PIN 4
+
+#define ECHO_INT 0
+
+HC_SR04<F_ECHO_PIN> frontSensor(F_TRIG_PIN);
+HC_SR04<L_ECHO_PIN> leftSensor(L_TRIG_PIN);
+HC_SR04<R_ECHO_PIN> rightSensor(R_TRIG_PIN);
 
 //Driving motor
 AccelStepper drivingStepper(AccelStepper::DRIVER, 19, 18);
@@ -32,6 +41,9 @@ AccelStepper steeringStepper(AccelStepper::DRIVER, 32, 33);
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  frontSensor.beginAsync();
+  leftSensor.beginAsync();
+  rightSensor.beginAsync();
 
   pinMode(F_TRIG_PIN, OUTPUT);
   pinMode(F_ECHO_PIN, INPUT);
@@ -41,6 +53,11 @@ void setup() {
 
   pinMode(R_TRIG_PIN, OUTPUT);
   pinMode(R_ECHO_PIN, INPUT);
+
+  frontSensor.startAsync(asyncTimeForUSS);
+  leftSensor.startAsync(asyncTimeForUSS);
+  rightSensor.startAsync(asyncTimeForUSS);
+
 
   drivingStepper.setMaxSpeed(maxDrivingSpeed);
   // Set the speed in steps per second:
@@ -55,16 +72,29 @@ void setup() {
   // Step the motor with a constant speed as set by setSpeed():
   steeringStepper.setAcceleration(100);
 
-
+  Serial.setTimeout(10);
 }
 
 void loop() {
 
-  frontDistance = getDistance(F_TRIG_PIN, F_ECHO_PIN);
-  leftDistance = getDistance(L_TRIG_PIN, L_ECHO_PIN);
-  rightDistance = getDistance(R_TRIG_PIN, R_ECHO_PIN);
+  //Read sensor data asynchronously; allows other code to run while readings are being taken
+  if (frontSensor.isFinished())
+  {
+    frontDistance = frontSensor.getDist_cm();
+    frontSensor.startAsync(asyncTimeForUSS);
+  }
+  if (leftSensor.isFinished())
+  {
+    leftDistance = leftSensor.getDist_cm();
+    leftSensor.startAsync(asyncTimeForUSS);
+  }
+  if (rightSensor.isFinished())
+  {
+    rightDistance = rightSensor.getDist_cm();
+    rightSensor.startAsync(asyncTimeForUSS);
+  }
 
-  if (Serial.available())
+  if (Serial.available() > 0)
   {
     String cmd = Serial.readStringUntil('\n');
     int comma = cmd.indexOf(',');
@@ -72,15 +102,17 @@ void loop() {
       serialDir = cmd.substring(0, comma).toFloat();
       serialSpd = cmd.substring(comma + 1).toFloat();
     }
-
-
-    Serial.print(frontDistance);
-    Serial.print(",");
-    Serial.print(leftDistance);
-    Serial.print(",");
-    Serial.println(rightDistance);
-    //format of serial write (f_dist,l_dist,r_dist)
   }
+
+
+  //send USS data via serial means
+  Serial.print(frontDistance);
+  Serial.print(",");
+  Serial.print(leftDistance);
+  Serial.print(",");
+  Serial.println(rightDistance);
+
+
 
   steeringTarget = (int)(round(25 * serialDir));
   targetSpeed = (int)(round(maxDrivingSpeed * serialSpd));
@@ -91,7 +123,7 @@ void loop() {
 
   drivingStepper.move(100); //keeps the wheels turning by continually pushing the target rotation 100 steps away
 
-  drivingStepper.run();
+  drivingStepper.runSpeed();
   steeringStepper.run();
 
 
