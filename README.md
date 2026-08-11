@@ -58,7 +58,7 @@ The **Tamagotchi-Triplets** autonomous vehicle is purpose‑built for the WRO 20
 | **Raspberry Pi 3B+** | Computer vision (OpenCV), high‑level decision making, state machine |
 | **Arduino Uno**      | Low‑level motor control, sensor filtering, serial command parsing |
 
-The two boards communicate via USB Serial **(specify the baud, but I think it is 115200 baud)**. The Pi processes frames at 15–20 FPS and sends steering/speed commands to the Arduino, which translates them into PWM signals for the servo and DC motor.
+The two boards communicate via USB Serial **(specify the baud, but I think it is 115200 baud)**. The Pi processes frames at 15–20 FPS and sends steering/speed commands to the Arduino, which translates them into PWM signals for the servo and DC motor. The Arduino board sends distances read by Front, Left, and Right ultrasonic sensors to the Pi board, which allows the CV to make better decisions in terms of steering and speed commands.
 
 Our vision pipeline is split into four logical modules, each feeding a central **Finite State Machine (FSM)** that implements the behaviour described in the official *Bot States* document:
 
