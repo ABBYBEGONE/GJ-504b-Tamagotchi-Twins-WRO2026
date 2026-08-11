@@ -1,16 +1,12 @@
 #include <AccelStepper.h>
 
-int numOfSteps = 0;
-String Placeholder = "Stuff: ";
-String data;
 float serialDir, serialSpd;
-
-bool isTurningCorner = false; 
-bool firstInstanceTurning = true;
 
 int maxDrivingSpeed = 2000;
 
-int cornersTurned = 0;
+int cornersTurned = 0; //check if this is kept track of in py
+
+float frontDistance, leftDistance, rightDistance;
 
 #define STEERING_STEP_PIN 32
 #define STEERING_DIRECTION_PIN 33
@@ -35,8 +31,6 @@ AccelStepper steeringStepper(AccelStepper::DRIVER, 32, 33);
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  Serial.println("Hello, ESP32!");
-
 
   pinMode(F_TRIG_PIN, OUTPUT);
   pinMode(F_ECHO_PIN, INPUT);
@@ -64,44 +58,32 @@ void setup() {
 }
 
 void loop() {
+
+  frontDistance = getDistance(F_TRIG_PIN, F_ECHO_PIN);
+  leftDistance = getDistance(L_TRIG_PIN, L_ECHO_PIN);
+  rightDistance = getDistance(R_TRIG_PIN, R_ECHO_PIN)
+
   if (Serial.available() > 0)
   {
     serialDir = Serial.parseFloat();
     serialSpd =  Serial.parseFloat();
+
+    Serial.write(frontDistance + "," + leftDistance + "," + rightDistance);
+    //format of serial write 
   }
 
-  data = Placeholder + serialDir + " " + serialSpd;
-  Serial.println(data);
-
+  //continually adjust speed and wheel angle using values supplied from CV
   drivingStepper.setSpeed(maxDrivingSpeed * serialSpd);
+  steeringStepper.moveTo(25 * serialDir);
+
+  drivingStepper.move(100); //keeps the wheels turning by continually pushing the target rotation 100 steps away
+
+  
 
   drivingStepper.run();
   steeringStepper.run();
 
-
-  //Driving Straight
-  if(getDistance(F_TRIG_PIN, F_ECHO_PIN) >= 10 && serialDir < 0.05f && serialDir > -0.05f)
-  { //might remove get distance from this conditional
-    DriveStraight();
-  }
-
-  //TurningCorner
-  else if (isTurningCorner || (serialDir >= 0.9f && getDistance(R_TRIG_PIN, R_ECHO_PIN) > 30) || (serialDir <= -0.9f && getDistance(L_TRIG_PIN, L_ECHO_PIN) > 30) )
-  {
-    TurnCorner();
-  }
-
-  //Passing t.lights
-  else if (serialDir != 0)
-  {
-    SteeringAroundTrafficLight();
-  }
-
-    //Leaving Parking Zone
-  else if (cornersTurned = 0 && getDistance(F_TRIG_PIN, F_ECHO_PIN) <= 5 && (getDistance(L_TRIG_PIN, L_ECHO_PIN) <= 5 || getDistance(R_TRIG_PIN, R_ECHO_PIN) <= 5)) //&&magenta
-  {
-    LeaveParking();
-  }
+ 
 }
 
 float getDistance(int trigPin, int echoPin)
@@ -114,41 +96,10 @@ float getDistance(int trigPin, int echoPin)
   return duration / 58;
 }
 
-void DriveStraight()
-{
-  Serial.println("Driving straight");
-  steeringStepper.moveTo(0);
-}
-
-void TurnCorner()
-{
-  if(firstInstanceTurning)
-  {
-    isTurningCorner = true;
-    firstInstanceTurning = false;
-  }
-
-  else if(!firstInstanceTurning)//some condition that must be met in regards to how many wheel steps it took while steering
-  {
-    isTurningCorner = false;
-    firstInstanceTurning = true;
-    cornersTurned++;
-  }
-
-  Serial.println("Turning corner");
-  steeringStepper.moveTo(25 * serialDir); //25 steps represents 45 degrees; multiplying by serialDir (which is -1.o to 1.0), determines how much of 45 degrees the wheels must turn
-}
-
-void SteeringAroundTrafficLight()
-{
-  Serial.println("Passing t.light");
-  steeringStepper.moveTo(25 * serialDir);
-}
-
-void LeaveParking()
+void LeaveParking() 
 {
   Serial.println("trying to leave parking");
-  if(getDistance(L_TRIG_PIN, L_ECHO_PIN) <= 5)
+  if(leftDistance <= 5)
   {
     steeringStepper.moveTo(25);
     steeringStepper.runToPosition();
@@ -162,7 +113,7 @@ void LeaveParking()
     drivingStepper.moveTo(800);
     drivingStepper.runToPosition();
   }
-  else if(getDistance(R_TRIG_PIN, R_ECHO_PIN) <= 5)
+  else if(rightDistance <= 5)
   {
     steeringStepper.moveTo(-25);
     steeringStepper.runToPosition();
