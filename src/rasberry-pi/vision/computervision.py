@@ -448,7 +448,7 @@ class RobotState:
       
         # 5. STRAIGHT DRIVING 
 
-        if (front_dist >= 20.0 or front_dist == 999.0 and 
+        if ((front_dist >= 20.0 or front_dist == 999.0) and
             not vision_result.corner_detected and
             vision_result.traffic_sign_colour is None):
             self.state = "STRAIGHT"
