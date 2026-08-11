@@ -417,7 +417,7 @@ class RobotState:
                     target_x = 220  # Pillar should appear right of centre
                 
                 # Calculate error and convert to steering
-                error = (self.pillar_x - target_x) / 160.0  # Normalize to -1..1
+                error = (self.pillar_x - target_x) / float(image_centre)  # Normalize to -1..1
                 steering = max(-0.6, min(0.6, error))
                 return steering, 0.3, "OBSTACLE", vision_result.traffic_sign_colour, None, "ALIGN"
             
