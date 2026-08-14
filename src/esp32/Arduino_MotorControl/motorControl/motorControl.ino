@@ -1,12 +1,10 @@
-#include <AccelStepper.h>
-#include <HC_SR04.h>
+#include <AccelStepper.h>//This library allows me to have more control over the motors
+#include <HC_SR04.h> //This library allows for sensors to read data asynchronously
 
 float serialDir, serialSpd;
 int targetSpeed, steeringTarget;
 
 int maxDrivingSpeed = 2000;
-
-int cornersTurned = 0; //check if this is kept track of in py
 
 float frontDistance, leftDistance, rightDistance;
 
@@ -36,14 +34,17 @@ HC_SR04<R_ECHO_PIN> rightSensor(R_TRIG_PIN);
 //Driving motor
 AccelStepper drivingStepper(AccelStepper::DRIVER, 19, 18);
 
+//Steering motor
 AccelStepper steeringStepper(AccelStepper::DRIVER, 32, 33);
 
 void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(115200);
+  Serial.begin(115200); //Turn on Serial communication with a baud rate of 115200
+
+  //Set the sensors up for asynchronous (non-blocking) reading
   frontSensor.beginAsync();
   leftSensor.beginAsync();
   rightSensor.beginAsync();
+  //
 
   pinMode(F_TRIG_PIN, OUTPUT);
   pinMode(F_ECHO_PIN, INPUT);
@@ -54,10 +55,11 @@ void setup() {
   pinMode(R_TRIG_PIN, OUTPUT);
   pinMode(R_ECHO_PIN, INPUT);
 
+  //Sends out pulse
   frontSensor.startAsync(asyncTimeForUSS);
   leftSensor.startAsync(asyncTimeForUSS);
   rightSensor.startAsync(asyncTimeForUSS);
-
+  //
 
   drivingStepper.setMaxSpeed(maxDrivingSpeed);
   // Set the speed in steps per second:
@@ -72,7 +74,8 @@ void setup() {
   // Step the motor with a constant speed as set by setSpeed():
   steeringStepper.setAcceleration(100);
 
-  Serial.setTimeout(10);
+  Serial.setTimeout(10); //sets how long the board should wait for each serial read to come through
+  //A low time ensures that code does not get stalled for a long time because the board is waiting for serial input
 }
 
 void loop() {
@@ -81,7 +84,7 @@ void loop() {
   if (frontSensor.isFinished())
   {
     frontDistance = frontSensor.getDist_cm();
-    frontSensor.startAsync(asyncTimeForUSS);
+    frontSensor.startAsync(asyncTimeForUSS); //Sends out another pulse
   }
   if (leftSensor.isFinished())
   {
@@ -93,11 +96,13 @@ void loop() {
     rightDistance = rightSensor.getDist_cm();
     rightSensor.startAsync(asyncTimeForUSS);
   }
+  //
 
-  if (Serial.available() > 0)
+  if (Serial.available() > 0) //Checks if there is data to be read from serial communication
   {
     String cmd = Serial.readStringUntil('\n');
     int comma = cmd.indexOf(',');
+    //Assigns serialDir and serialSpd their values by using substrings to gather the neccesary data 
     if (comma > 0) {
       serialDir = cmd.substring(0, comma).toFloat();
       serialSpd = cmd.substring(comma + 1).toFloat();
@@ -105,41 +110,44 @@ void loop() {
   }
 
 
-  //send USS data via serial means
+  //send USS data via serial means to Raspi board
   Serial.print(frontDistance);
   Serial.print(",");
   Serial.print(leftDistance);
   Serial.print(",");
   Serial.println(rightDistance);
+  //
 
-
-
+   //continually adjust speed and wheel angle using values supplied from computer vision's serial data
   steeringTarget = (int)(round(25 * serialDir));
   targetSpeed = (int)(round(maxDrivingSpeed * serialSpd));
 
-  //continually adjust speed and wheel angle using values supplied from CV
   drivingStepper.setSpeed(targetSpeed);
   steeringStepper.moveTo(steeringTarget);
+  //
 
-  drivingStepper.move(100); //keeps the wheels turning by continually pushing the target rotation 100 steps away
+  drivingStepper.move(100); //keeps the wheels running by continually pushing the target rotation 100 steps away
 
+  //Make the motors move
   drivingStepper.runSpeed();
   steeringStepper.run();
-
+  //
 
 }
 
-float getDistance(int trigPin, int echoPin)
+float getDistance(int trigPin, int echoPin) //Unused; blocking type method used to get distance 
 {
-  digitalWrite(trigPin, HIGH);
+  //Sends out a pulse 
+  digitalWrite(trigPin, HIGH); 
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
+  //
 
-  int duration = pulseIn(echoPin, HIGH);
-  return duration / 58;
+  int duration = pulseIn(echoPin, HIGH); //calculates how long it took for the pulse to return
+  return duration / 58; //Convert to cm
 }
 
-void LeaveParking()
+void LeaveParking() //Unused; kept for reference to its logic
 {
   Serial.println("trying to leave parking");
   if (leftDistance <= 5)
