@@ -1,22 +1,50 @@
-## Tamagotchi Triplets WRO 2026 FUTURE ENGINEERS
-> This is the repository for GJ504b competing in the World Robot Olympiad, Future Engineer Category > in 2026
+# Tamagotchi Triplets WRO 2026 FUTURE ENGINEERS
+This is the repository for the Tamagotchi Triplets competing in the World Robot Olympiad, Future Engineer Category in 2026
+>  As this is our first time using GitHub, or competing in the WRO we referenced the repository format of https://github.com/andreipopescufilimon/WRO2026_Future_Engineers
+>,  to guide us only in our repository structure and ReadMe format.If you see this, you are our team's inspiration and we admire your thoroughness 
 
 
-### THE TEAM 
+## THE TEAM 
 
-| Name | Skills | Role |
-| --- | --- | --- |
-| Abigail Maina | add your skills | add your role in the team |
-| Tawana Chinoruma | add your skills | add your role in the team |
-| Michael Sambaza | add your skills | add your role in the team |
+### Team Name:
+"Tamogatchi" refers to popular handheld digital pet beloved by Tawana.
+"Triplets" was chosen because there are 3 of us
 
+(The repository's name of GJ- 504- Tomagatchi Twins is our old team name, that we used before Michael joined the team : GJ-504b refers to the pink planet)
+
+### Our team consists of 3 members 
 
 > All 3 of us are 18 years old and Upper Sixth Students at Saint John's College in South Africa
 > We are competing in the WRO for the first time
-> We are friends in most of the same A Level classes who are passionate about STEM and are taking  > on the Future Engineer Category to challenge ourselves and improve our skills
+> We are friends in most of the same A Level classes who are passionate about STEM and are taking
+> on the Future Engineer Category to challenge ourselves and improve our skills
 
-> Team Name:
-> "Tamogatchi" refers to popular handheld digital pet beloved by Tawana."Triplets" was chosen >because there are 3 of us
+<img width="600" height="800" alt="WhatsApp Image 2026-08-13 at 15 21 33" src="https://github.com/user-attachments/assets/ad106168-1f59-4634-bd44-5c3db9160e78" />
+
+
+## 1. Abigail Ngina Maina - (18 years old) 🇰🇪
+I have been passionate about programming and robotics for as long as I can remember, but hadn't had the chance to compete in any robotics competitions before moving from Kenya to my current school here in South Africa. I am in charge of admin, overseeing the documentation and other typical captaining things. I am also handling most of the hardware aspects of this project: power and sensor architecture design, mobility and mechanical design, and the overall assembly.
+One of my life goals is to make programming and robotics education more accessible in Kenya and I ran a community service initiative teaching Microbits
+I also run a pad donation project. If you are interested in these causes, dm 
+
+---
+<img width="567" height="549" alt="WhatsApp Image 2026-08-13 at 11 23 13" src="https://github.com/user-attachments/assets/42b0c311-10d3-48b0-8025-3ff6842288df" />
+
+## 2.Tawana Chinoruma(right) -  (18 years old) 
+I'm Tawana, a robotics enthusiast working on computer vision and autonomous systems, primarily in Python and OpenCV. For this WRO 2026 project, I've been responsible for the vision pipeline and state machine—handling lane detection, traffic light alignment, and serial integration with our microcontroller. I enjoy solving problems and collaborating to make the whole system work together.
+:p (and my little pony)
+
+---
+
+## 3.Michael Sambaza(left) - (17 years old) 
+I'm Michael, a software geek skilled in a handful of programming languages. I'm one of the programmers and am responsible for the motor control and ultrasonic sensor functionality, both using Arduino. I also built the document outlining the bot's states and designed 2D and 3D designs for potential wheel frames.
+
+---
+
+
+
+
+
 
 
 ### THE TASK
@@ -25,14 +53,18 @@ Information on rules and problem descriptions from the official WRO can be found
 https://wro-association.org/wp-content/uploads/WRO-2026-Future-Engineers-Self-Driving-Cars-General-Rules.pdf
 
 We will be judged on 3 categories:
+
 **1. The Open Challenge:** The vehicle must complete three (3) laps on the track with random placements
 of the inside track walls.
+
 **2. Obstacle Challenge:** The vehicle must complete three (3) laps on the track with randomly placed
 green and red traffic signs. The traffic signs indicate the side of the lane the vehicle must follow.
 The traffic sign to keep to the right side of the lane is a red pillar. The traffic sign to keep to the
 left side of the lane is a green pillar. The vehicle should not move any of the traffic signs. After
 the robot completed the three rounds, it had to find the parking lot and has to perform parallel
 parking.
+
+
 **3. Documentation:** In addition to designing and programming the vehicle,
 teams must provide documentation that presents their engineering progress, the final vehicle
 design, and final vehicle source code. This documentation must be uploaded to the public GitHub repository
