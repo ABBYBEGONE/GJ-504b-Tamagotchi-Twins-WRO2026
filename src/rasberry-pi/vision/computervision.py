@@ -499,12 +499,14 @@ class SerialDataHandler:
             time.sleep(0.01)  # Small delay to prevent CPU hog
 
     def get_uss_data(self):
-        #Get the latest USS data from the queue (non-blocking).
+        # Get the latest USS data from the queue (non-blocking).
+        latest = None
         try:
-            data = self.uss_queue.get(block=False)
-            return data
+            while True:
+                latest = self.uss_queue.get(block=False)
         except queue.Empty:
-            return (USS_TIMEOUT, USS_TIMEOUT, USS_TIMEOUT)
+            pass
+        return latest if latest is not None else (USS_TIMEOUT, USS_TIMEOUT, USS_TIMEOUT)
 
     def send_command(self, steering, speed, state, colour1=None, colour2=None, phase=None):
         #Send command to Arduino (thread-safe).
