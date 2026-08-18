@@ -489,7 +489,7 @@ class SerialDataHandler:
             try:
                 with self.lock:
                     if self.ser and self.ser.in_waiting > 0:
-                        line = self.ser.readline().decode().strip()
+                        line = self.ser.readline().decode(errors="ignore").strip()
                         parts = line.split(',')
                         if len(parts) == 3:
                             try:
