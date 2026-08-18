@@ -314,8 +314,8 @@ class BossModeVision:
             return 0.0, 0.0, 0.0, 0.0
 
         # Exponential decay when lines are visible
-        self.slack_s = max(0, self.slack_s * 0.9)
-        self.slack_v = max(0, self.slack_v * 0.9)
+        self.slack_s = max(0, int(self.slack_s * 0.9))
+        self.slack_v = max(0, int(self.slack_v * 0.9))
 
         # Smooth histogram
         kernel = np.ones(5, dtype=np.float32) / 5
