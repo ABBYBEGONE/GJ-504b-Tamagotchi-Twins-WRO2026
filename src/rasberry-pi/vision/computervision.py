@@ -462,7 +462,7 @@ class SerialDataHandler:
     def connect(self):
         """Establish serial connection."""
         try:
-            self.ser = serial.Serial(self.port, self.baudrate, timeout=0.1)
+            self.ser = serial.Serial(self.port, self.baudrate, timeout=0.01, write_timeout=0.01)
             time.sleep(2)
             self.connected = True
             print(f"[INFO] Serial connected to {self.port} at {self.baudrate} baud")
