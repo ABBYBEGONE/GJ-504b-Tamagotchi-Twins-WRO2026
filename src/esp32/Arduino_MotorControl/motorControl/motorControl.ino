@@ -108,11 +108,10 @@ void loop() {
   }
 
   //send USS data via serial means to Raspi board
-  //Serial.print(frontDistance);
-  //Serial.print(",");
-  //Serial.print(leftDistance);
-  //Serial.print(",");
-  //Serial.println(rightDistance);
+  String distancesToSend = "";
+  distancesToSend += (String)frontDistance + "," + (String)leftDistance + "," + (String)rightDistance;
+  Serial.println(distancesToSend);
+
   //
 
   if (Serial.available() > 0) //Checks if there is data to be read from serial communication
@@ -134,10 +133,6 @@ void loop() {
 
         targetAngle = 90 + (int)(round(45 * serialDir));
         botState = getCommandIndex(serialBotState);
-
-        Serial.print(targetAngle);
-        Serial.print(",");
-        Serial.println(serialSpd);
       }
     }
     else{
@@ -150,6 +145,7 @@ void loop() {
     }
 
   }
+
 
   //skeleton for Round logic
 
