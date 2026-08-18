@@ -842,7 +842,6 @@ def main():
     print(f"[INFO] PID: Kp={PID_KP}, Ki={PID_KI}, Kd={PID_KD}, RateLimit={PID_RATE_LIMIT}")
 
     # Timing for frame rate regulation
-    last_frame_time = time.time()
     frame_times = deque(maxlen=30)
 
     try:
