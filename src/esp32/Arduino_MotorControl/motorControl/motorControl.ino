@@ -151,10 +151,6 @@ void loop() {
 
   }
 
-  turnToTargetAngle(targetAngle);
-  setDrivingMotorSpeed((int)(round(255 * serialSpd)), 1);
-
-
   //skeleton for Round logic
 
   if (serialChallengeMode == "OPEN")
