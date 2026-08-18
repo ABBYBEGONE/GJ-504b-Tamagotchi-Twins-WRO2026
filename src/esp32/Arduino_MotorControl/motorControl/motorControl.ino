@@ -2,11 +2,11 @@
 #include <HC_SR04.h> //This library allows for sensors to read data asynchronously
 
 //Receive via serial
-String serialChallengeMode;
+String serialChallengeMode = "";
 float serialDir, serialSpd;
 String serialBotState;
-enum CommandIndex { EXIT, DRIVE, REVERSE, CORNER, PARK, CMD_UNKNOWN};
-const String commands[] = { "EXIT", "DRIVE", "REVERSE", "CORNER", "PARK"};
+enum CommandIndex { LEAVING_PARKING, STRAIGHT, OBSTACLE, REVERSE, CORNER, PARKING, CMD_UNKNOWN};
+const String commands[] = { "LEAVING_PARKING", "STRAIGHT", "OBSTACLE", "REVERSE", "CORNER", "PARKING"};
 
 const int numCommands = sizeof(commands) / sizeof(commands[0]);
 
@@ -117,22 +117,38 @@ void loop() {
 
   if (Serial.available() > 0) //Checks if there is data to be read from serial communication
   {
-    String cmd = Serial.readStringUntil('\n');
-    int comma = cmd.indexOf(',');
-    //Assigns serialDir and serialSpd their values by using substrings to gather the neccesary data
-    if (comma > 0) {
-      //serialChallengeMode =
-      serialDir = cmd.substring(0, comma).toFloat();
-      serialSpd = cmd.substring(comma + 1).toFloat();
-      //serialBotState =
+    if (serialChallengeMode != "") //checks if the serial challenge mode is not empty (the challenge has been set)
+    {
+      String cmd = Serial.readStringUntil('\n');
+      int comma1 = cmd.indexOf(',');
+      int comma2 = cmd.indexOf(',', comma1 + 1);
+      int comma3 = cmd.indexOf(',', comma2 + 1);
 
-      targetAngle = 90 + (int)(round(45 * serialDir));
-      //botState = getCommandIndex(serialBotState);
+      //Assigns serialDir, serialSpd, and serialBotState their values by using substrings to gather the necessary data
+      if (comma1 > 0 && comma2 > 0) {
 
-      Serial.print(targetAngle);
-      Serial.print(",");
-      Serial.println(serialSpd);
+        serialDir = cmd.substring(0, comma1).toFloat();
+        serialSpd = cmd.substring(comma1 + 1, comma2).toFloat();
+        //Only take the 3rd value; if a 4th comma exists (i.e. more values follow), stop there, otherwise take the rest of the string
+        serialBotState = (comma3 > 0) ? cmd.substring(comma2 + 1, comma3) : cmd.substring(comma2 + 1);
+
+        targetAngle = 90 + (int)(round(45 * serialDir));
+        botState = getCommandIndex(serialBotState);
+
+        Serial.print(targetAngle);
+        Serial.print(",");
+        Serial.println(serialSpd);
+      }
     }
+    else{
+      
+      serialChallengeMode = Serial.readStringUntil('\n'); //read and set the challenge mode
+      if(!(serialChallengeMode == "OPEN" || serialChallengeMode=="OBSTACLE")  )
+      {
+        serialChallengeMode = "";
+      }
+    }
+
   }
 
   turnToTargetAngle(targetAngle);
@@ -141,7 +157,7 @@ void loop() {
 
   //skeleton for Round logic
 
-  if (serialChallengeMode == "Open")
+  if (serialChallengeMode == "OPEN")
   {
     if (!frontDistanceChecked) //Check if this is really only called once
     { //call this in setup() rather, regardless of challenge mode
@@ -152,7 +168,7 @@ void loop() {
     switch (botState) //State switching with a switch statement XD
     {
 
-      case DRIVE:
+      case STRAIGHT:
         turnToTargetAngle(targetAngle); //just drive straight or at whatever serial angle is provided
         setDrivingMotorSpeed((int)(round(255 * serialSpd)), 1);
         break;
@@ -169,7 +185,7 @@ void loop() {
         //review this against python logic
         break;
 
-      case PARK: //ask tawana to set mode to park if corners == 12
+      case PARKING:
         if (frontDistance <= initialFrontDistance)
         {
           setDrivingMotorSpeed(0, 1);
@@ -187,15 +203,15 @@ void loop() {
   }
 
   ////////////
-  if (serialChallengeMode == "Obstacle")
+  else if (serialChallengeMode == "OBSTACLE")
   {
     switch (botState) //State switching with a switch statement XD
     {
-      case EXIT:
+      case LEAVING_PARKING:
         ExitParking();
         break;
 
-      case DRIVE:
+      case STRAIGHT: OBSTACLE:
         turnToTargetAngle(targetAngle);
         setDrivingMotorSpeed((int)(round(255 * serialSpd)), 1);
 
@@ -212,7 +228,7 @@ void loop() {
       //keep driving and stopping to make sure bot doesn't overshoot
       //review this against python logic
 
-      case PARK:
+      case PARKING:
         turnToTargetAngle(targetAngle);
         driveForXMilliseconds(250, (int)(round(255 * serialSpd)), 1);
         //keep driving and stopping to make sure bot doesn't drive too far
