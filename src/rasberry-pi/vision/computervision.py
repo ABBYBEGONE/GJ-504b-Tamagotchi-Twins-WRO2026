@@ -110,7 +110,7 @@ class PIDController:
             output_min: Minimum output value (usually -1.0) - we can change upon testingI
             output_max: Maximum output value (usually 1.0) - we can change upon testing
             rate_limit: Max output change per second (prevents snapping)
-            derivative_filter_alpha: Low-pass filter for derivative (0-1, lower = more smoothing)
+            derivative_filter_alpha: Low-pass filter for derivative (0-1, higher = more smoothing)
             integral_limit: Max absolute integral sum (anti-windup)
         """
         self.kp = kp
