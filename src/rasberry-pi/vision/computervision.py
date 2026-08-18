@@ -205,14 +205,10 @@ class PIDController:
             else:
                 self.integral = 0.0
 
-        # 8. Rate limiting (smooth steering) 
+        # 8. Rate limiting (smooth steering)
         max_change = self.rate_limit * dt
-        if self.first_run:
-            final_output = clamped_output
-        else:
-            final_output = max(self.prev_output - max_change,
-                               min(self.prev_output + max_change, clamped_output))
-
+        final_output = max(self.prev_output - max_change,
+                           min(self.prev_output + max_change, clamped_output))
         self.prev_output = final_output
         self.last_output = final_output
 
