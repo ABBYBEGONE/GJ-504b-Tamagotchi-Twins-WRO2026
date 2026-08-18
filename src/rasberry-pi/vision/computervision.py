@@ -859,8 +859,7 @@ def main():
                 )
 
                 # 4. Send command to Arduino
-                if state != "STARTUP":
-                    serial_handler.send_command(steering, speed, state, colour1, colour2, phase)
+                serial_handler.send_command(steering, speed, state, colour1, colour2, phase)
 
                 # 5. Debug output
                 print(f"State: {state:15} | Steer: {steering:+5.2f} | "
