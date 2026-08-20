@@ -1,4 +1,4 @@
-#include <ESP32Servo.h>
+#include <Servo.h>
 #include <HC_SR04.h> //This library allows for sensors to read data asynchronously
 
 //Receive via serial
@@ -47,18 +47,18 @@ int numberOfCornersTurned = 0;
 int asyncTimeForUSS = 100000;
 
 //Motor A: DC Motor; Motor B: servo motor
-#define Motor_A 34
-#define DRIVING_1A_PIN 19
-#define DRIVING_1B_PIN 21
+#define Motor_A 4
+#define DRIVING_1A_PIN 5
+#define DRIVING_1B_PIN 6
 
-#define SERVO_SIG_PIN 18
+#define SERVO_SIG_PIN 13
 //#define B_1A_PIN 25
 //#define B_1B_PIN 26
 
 #define UNI_TRIG_PIN 2 //all USSs use same TRIG PIN
-#define F_ECHO_PIN 15
-#define L_ECHO_PIN 14
-#define R_ECHO_PIN 4
+#define F_ECHO_PIN 8
+#define L_ECHO_PIN 9
+#define R_ECHO_PIN 10
 
 Servo servoMotor;
 
@@ -219,6 +219,7 @@ void loop() {
         driveForXMilliseconds(500, (int)(round(255 * serialSpd)), 1);
       //keep driving and stopping to make sure bot doesn't overshoot
       //review this against python logic
+      break;
 
       case PARKING:
         turnToTargetAngle(targetAngle);
