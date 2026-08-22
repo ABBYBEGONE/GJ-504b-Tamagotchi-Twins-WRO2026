@@ -12,7 +12,7 @@ SERIAL PROTOCOL (Pi → Arduino):
     Example: "0.350,0.500,STRAIGHT\n"
 
     Arduino parses only the first three values (steering, speed, state).
-    The state field MUST be one of: STRAIGHT, CORNER, OBSTACLE, REVERSE, PARKING, LEAVING_PARKING
+    State must be one of: STRAIGHT, CORNER, OBSTACLE, REVERSE, PARKING, LEAVING_PARKING
 
 SERIAL PROTOCOL (Arduino → Pi):
     Format: "front_cm,left_cm,right_cm\n"
@@ -23,7 +23,6 @@ import cv2
 import numpy as np
 from collections import namedtuple
 from picamera2 import Picamera2
-from picamera2.array import PiRGBArray
 import time
 import logging
 import serial
@@ -162,6 +161,10 @@ class PIDController:
 # 4. Vision Processor (Camera Module 3)
 
 class BossModeVision:
+    """
+    Adaptive vision pipeline with dynamic thresholding.
+    Uses HSV colour segmentation with automatic slack adjustment.
+    """
     def __init__(self, resolution=(320, 240), framerate=15, driving_direction=1):
         self.width, self.height = resolution
         self.framerate = framerate
@@ -170,6 +173,7 @@ class BossModeVision:
         self.slack_v = 0
         self.frame_count = 0
 
+        # Camera Module 3 setup using Picamera2
         self.camera = Picamera2()
         config = self.camera.create_video_configuration(
             main={"size": resolution, "format": "RGB888"}
@@ -192,6 +196,7 @@ class BossModeVision:
         self.camera.stop()
 
     def capture_frame(self):
+        """Capture a single frame from the Camera Module 3."""
         frame = self.camera.capture_array()
         return cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
@@ -427,7 +432,6 @@ class SerialDataHandler:
         steering = max(-1.0, min(1.0, steering))
         speed = max(0.0, min(1.0, speed))
 
-        # Only send the first three values – Arduino ignores the rest
         command = f"{steering:.3f},{speed:.3f},{state}\n"
 
         with self.lock:
@@ -683,7 +687,6 @@ def main():
     robot = RobotState()
 
     # Send challenge type (one-time, plain format)
-    # Capture first frame to detect magenta
     with vision:
         result = vision.get_frame_and_process()
         challenge = "OBSTACLE" if result.magenta_detected else "OPEN"
