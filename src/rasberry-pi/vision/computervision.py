@@ -666,19 +666,13 @@ class RobotState:
         """
         current_time = time.time()
 
-        # State 0: Highest Priority - Emergency Stop (with carve-out for obstacle passing)
-        if self.state == "OBSTACLE" and self.pillar_phase == "PASSING":
-            # Tighter threshold during active passing (rely on side USS for safety)
-            if front_dist < 4.0:
-                self.state = "EMERGENCY_STOP"
-                self.steering_pid.reset()
-                return 0.0, 0.0, "EMERGENCY_STOP", None, None, None
-        else:
-            # Normal emergency stop threshold
-            if front_dist < 10.0:
-                self.state = "EMERGENCY_STOP"
-                self.steering_pid.reset()
-                return 0.0, 0.0, "EMERGENCY_STOP", None, None, None
+        # State 0: Highest Priority - Emergency Stop (with carve-out for obstacle passing / SAFE_HOLD)
+        obstacle_passing = self.state == "OBSTACLE" and self.pillar_phase in ("PASSING", "SAFE_HOLD")
+        estop_threshold = ESTOP_OBSTACLE if obstacle_passing else ESTOP_NORMAL
+        if front_dist < estop_threshold:
+            self.state = "EMERGENCY_STOP"
+            self.steering_pid.reset()
+            return 0.0, 0.0, "EMERGENCY_STOP", None, None, None
 
         # State 0.5: SAFE_HOLD - Recovery from close obstacle passing
         # If we're in PASSING phase and lose the pillar while very close (4-10cm),
